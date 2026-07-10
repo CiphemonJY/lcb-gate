@@ -9,6 +9,12 @@ proves almost nothing. Stdlib only, no dependencies.
 
 ```
 pip install lcb-gate
+```
+
+The demo ships in the repo (not the wheel):
+
+```
+git clone https://github.com/CiphemonJY/lcb-gate && cd lcb-gate
 python examples/demo.py     # why a single green run lies, in three acts
 ```
 
@@ -55,7 +61,7 @@ def test_agent_completes_checkout(lcb):
 The plugin registers automatically on install. Failures explain themselves:
 
 ```
-Failed: lcb-gate FAIL: 21/30 passed (gate n=30); LCB 0.538 < 0.9 @ 95% confidence
+Failed: lcb-gate FAIL: 21/30 passed (gate n=30); LCB 0.551 < 0.9 @ 95% confidence
 ```
 
 ### Candidate vs champion (promotion gates)

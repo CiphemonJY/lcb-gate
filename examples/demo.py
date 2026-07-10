@@ -60,6 +60,7 @@ powered = compare(candidate, champion, seeds=range(400))
 print(f"    n=30:  {underpowered}")
 print(f"    n=400: {powered}")
 print("    same candidate, same true edge — only the evidence changed")
+print("    (30 pairs is so underpowered the sample can even reverse the sign)")
 assert not underpowered.better   # honest: cannot certify on 30 pairs
 assert powered.better            # certified on 400
 
