@@ -18,7 +18,9 @@ from lcb_gate import compare, min_trials, run_gate
 def flaky_eval(true_pass_rate, salt):
     """A stochastic 'agent eval': passes with the given true probability."""
     def trial(i):
-        return random.Random((salt, i)).random() < true_pass_rate
+        # str seed: stable across Python versions AND legal on 3.13+
+        # (tuple seeds became a TypeError in 3.13)
+        return random.Random(f"{salt}:{i}").random() < true_pass_rate
     return trial
 
 
