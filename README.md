@@ -87,6 +87,61 @@ def test_new_prompt_beats_production(lcb):
     lcb.check_better(eval_new, eval_old, n=400)
 ```
 
+## Gating an LLM verifier
+
+A binary pass/fail throws away signal. A continuous verifier score in `[0, 1]`
+— an LLM-as-a-judge rubric score — separates good solutions from bad ones far
+more sharply, and certifies with fewer samples (motivation:
+[arXiv:2607.05391](https://arxiv.org/abs/2607.05391), "LLM-as-a-Verifier").
+`score_gate` gates on the **empirical-Bernstein lower bound of the mean score**
+— the variance-adaptive analog of Wilson: it tightens automatically when the
+judge's scores cluster and stays honestly wide when they scatter.
+
+```python
+from lcb_gate import score_gate
+
+# judge(seed) returns a rubric score in [0, 1] for one sampled generation
+result = score_gate(lambda i: judge_quality(seed=i), n=50, threshold=0.8)
+print(result)
+# PASS: mean score 0.911 over 50 runs (gate n=50); mean-LCB 0.803 >= 0.8 @ 95% confidence
+assert result.passed
+```
+
+Each score is validated to be in `[0, 1]` (`ValueError` otherwise), and the
+gate early-stops in **both** directions the moment the verdict is settled, just
+like `run_gate`.
+
+How many judge repeats until the verdict is trustworthy? For a binary verifier,
+`min_trials(threshold)` answers the sizing question directly — a flawless run
+below that n cannot certify, by design. For a continuous score the same
+intuition holds through the EB margin's `7·ln(2/δ)/(3(n-1))` term: at tiny n the
+bound is unpassable even for a perfect `1.0` stream, so the number of judge
+repeats is bounded below by the confidence you demand. Don't trust a one-shot
+verdict.
+
+For promotion — picking the best of K prompt/model variants by their judge
+score — `rank` races the candidates cost-efficiently:
+
+```python
+from lcb_gate import rank
+
+# pick the best of K prompt/model variants by their judge score, cost-efficiently
+result = rank([judge_variant_a, judge_variant_b, judge_variant_c], n_max=3000)
+print(result)
+# BEST: candidate #0 (mean 0.887, LCB 0.812) beats every rival's UCB over 214 rounds / 642 evals @ 95%
+if result.proven:
+    promote(result.winner)
+```
+
+`rank` scores the K candidates with **common random numbers** (the same seed to
+all of them each round) and stops the moment the leader's lower bound clears
+every rival's upper bound — splitting confidence across candidates **and** rounds
+so the selection error stays under `1 - confidence`. The honest default is
+`NOT PROVEN`: an underpowered field never certifies a winner, the same winner's-
+curse discipline as `compare()`. Reach for `compare()` for one paired A/B on a
+win rate; reach for `rank()` for a K-way promotion on a continuous score — it is
+the continuous, K-way generalization of the `compare()` gate above.
+
 ## Sizing your gate
 
 A perfect record at small n still can't clear a high bar — by design. Minimum
