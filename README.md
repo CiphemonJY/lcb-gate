@@ -136,7 +136,8 @@ if result.proven:
 `rank` scores the K candidates with **common random numbers** (the same seed to
 all of them each round) and stops the moment the leader's lower bound clears
 every rival's upper bound — splitting confidence across candidates **and** rounds
-so the selection error stays under `1 - confidence`. The honest default is
+to control the selection error at the order of `1 - confidence` (empirically ~0,
+since the empirical-Bernstein bound is conservative). The honest default is
 `NOT PROVEN`: an underpowered field never certifies a winner, the same winner's-
 curse discipline as `compare()`. Reach for `compare()` for one paired A/B on a
 win rate; reach for `rank()` for a K-way promotion on a continuous score — it is
