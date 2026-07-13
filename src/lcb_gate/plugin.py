@@ -11,7 +11,7 @@ pass rate clears the threshold.
 
 import pytest
 
-from .gate import compare, run_gate
+from .gate import compare, rank, run_gate, score_gate
 
 
 class LcbHelper:
@@ -23,10 +23,32 @@ class LcbHelper:
             pytest.fail(f"lcb-gate {result}")
         return result
 
+    def check_score(self, trial, n=25, threshold=0.9, confidence=0.95, stop_early=True):
+        """Fail the surrounding test unless the mean-score gate passes.
+
+        Returns ScoreGateResult.
+        """
+        result = score_gate(trial, n=n, threshold=threshold,
+                            confidence=confidence, stop_early=stop_early)
+        if not result.passed:
+            pytest.fail(f"lcb-gate {result}")
+        return result
+
     def check_better(self, candidate, champion, n=200, confidence=0.95, seeds=None):
         """Fail the surrounding test unless candidate provably beats champion."""
         result = compare(candidate, champion, n=n, confidence=confidence, seeds=seeds)
         if not result.better:
+            pytest.fail(f"lcb-gate {result}")
+        return result
+
+    def check_best(self, candidates, n_max=2000, confidence=0.95, seeds=None, min_rounds=2):
+        """Fail the surrounding test unless a best candidate is provably certified.
+
+        Returns RankResult.
+        """
+        result = rank(candidates, n_max=n_max, confidence=confidence,
+                      seeds=seeds, min_rounds=min_rounds)
+        if not result.proven:
             pytest.fail(f"lcb-gate {result}")
         return result
 
