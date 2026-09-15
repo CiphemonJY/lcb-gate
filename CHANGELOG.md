@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.1 — 2026-09-15
+
+- Packaging only; no functional change. Corrects the package author metadata,
+  which named `Ciphemon` rather than James Yeung, and relicenses nothing (MIT
+  throughout). Published so PyPI reflects the correct author.
+
 ## 0.2.0 — 2026-07-12
 
 - `eb_lcb` / `eb_ucb` — one-sided empirical-Bernstein bounds on the mean of

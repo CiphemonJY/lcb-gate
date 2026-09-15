@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "lcb-gate"
-version = "0.2.0"
+version = "0.2.1"
 description = "Statistical pass/fail gating for stochastic tests: run N times, pass only when the Wilson lower confidence bound clears the bar. Built for agent evals; stdlib only."
 readme = "README.md"
 license = "MIT"
